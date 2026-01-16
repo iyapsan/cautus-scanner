@@ -13,6 +13,67 @@ from scanner.exceptions import ConfigurationError
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
+# CENTRALIZED DEFAULTS
+# =============================================================================
+# All default values in one place. Import and use these in providers/factory.
+
+DEFAULTS = {
+    # IBKR connection
+    "ibkr": {
+        "host": "127.0.0.1",
+        "port": 7497,  # TWS default (4002 for Gateway)
+        "client_id": 1,
+        "timeout": 10,
+        "market_data_type": 1,  # 1=live, 3=delayed
+    },
+    
+    # IBKR Universe Scanner
+    "universe": {
+        "provider": "csv",
+        "csv_path": "data/universe.csv",
+        "port": 4002,
+        "client_id": 2,  # Different from market data
+        "price_min": 2.0,
+        "price_max": 20.0,
+        "volume_min": 500_000,
+        "percent_change_min": 5.0,
+        "max_results": 50,
+    },
+    
+    # Pillars
+    "price": {
+        "enabled": True,
+        "min": 2.0,
+        "max": 20.0,
+    },
+    "momentum": {
+        "enabled": True,
+        "min_pct_move": 10.0,
+        "min_early_session_rvol": 5.0,
+    },
+    "volume": {
+        "enabled": True,
+        "min_relative_volume": 5.0,
+        "lookback_days": 30,
+    },
+    "catalyst": {
+        "enabled": True,
+        "require_news": True,
+        "lookback_hours": 24,
+    },
+    "float": {
+        "enabled": True,
+        "max_shares": 20_000_000,
+    },
+    
+    # Cache
+    "cache": {
+        "ttl_seconds": 5,
+    },
+}
+
+
 def load_config(config_path: Path) -> dict:
     """
     Load and validate scanner configuration from YAML file.

@@ -4,6 +4,7 @@ ProviderFactory - Config-driven provider instantiation.
 
 import logging
 
+from scanner.config import DEFAULTS
 from scanner.exceptions import ConfigurationError
 from scanner.models import (
     FundamentalsProvider,
@@ -14,6 +15,11 @@ from scanner.models import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _get(config: dict, key: str, section: str) -> any:
+    """Get config value with centralized default fallback."""
+    return config.get(key, DEFAULTS.get(section, {}).get(key))
 
 
 class ProviderFactory:
@@ -28,10 +34,10 @@ class ProviderFactory:
             from scanner.providers.ibkr_market_data import IBKRMarketDataProvider
 
             return IBKRMarketDataProvider(
-                host=config.get("host", "127.0.0.1"),
-                port=config.get("port", 7497),
-                client_id=config.get("client_id", 1),
-                market_data_type=config.get("market_data_type", 1),  # 1=live (default), 3=delayed
+                host=_get(config, "host", "ibkr"),
+                port=_get(config, "port", "ibkr"),
+                client_id=_get(config, "client_id", "ibkr"),
+                market_data_type=_get(config, "market_data_type", "ibkr"),
             )
         else:
             raise ConfigurationError(f"Unknown market_data provider type: {provider_type}")
@@ -63,12 +69,27 @@ class ProviderFactory:
     @staticmethod
     def create_universe(config: dict) -> UniverseProvider:
         """Create universe provider from config."""
-        provider_type = config.get("provider", "csv")
+        provider_type = _get(config, "provider", "universe")
 
         if provider_type == "csv":
             from scanner.providers.csv_universe import CSVUniverseProvider
 
-            return CSVUniverseProvider(csv_path=config.get("csv_path", "data/universe.csv"))
+            return CSVUniverseProvider(csv_path=_get(config, "csv_path", "universe"))
+        
+        elif provider_type == "ibkr":
+            from scanner.providers.ibkr_universe import IBKRUniverseProvider
+
+            return IBKRUniverseProvider(
+                host=_get(config, "host", "ibkr"),
+                port=_get(config, "port", "universe"),
+                client_id=_get(config, "client_id", "universe"),
+                market_data_type=_get(config, "market_data_type", "ibkr"),
+                price_min=_get(config, "price_min", "universe"),
+                price_max=_get(config, "price_max", "universe"),
+                volume_min=_get(config, "volume_min", "universe"),
+                percent_change_min=_get(config, "percent_change_min", "universe"),
+                max_results=_get(config, "max_results", "universe"),
+            )
         else:
             raise ConfigurationError(f"Unknown universe provider type: {provider_type}")
 
