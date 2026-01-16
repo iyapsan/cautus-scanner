@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cautus-scanner"
+version = "0.1.0"
+description = "Low-latency, deterministic stock scanner for momentum trading"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ib_async>=1.0.0",
+    "pandas>=2.0.0",
+    "pyyaml>=6.0.0",
+    "pytz>=2023.3",
+    "python-dotenv>=1.0.0",
+    "backoff>=2.2.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-mock>=3.12.0",
+]
+alpaca = ["alpaca-py>=0.9.0"]
+redis = ["redis>=5.0.0"]
+
+[tool.pytest.ini_options]
+markers = [
+    "smoke: Fast smoke tests for critical invariants",
+    "integration: Integration tests that require IBKR connection",
+]
+testpaths = ["tests/smoke_tests", "tests/unit_tests", "tests/integration_tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-m 'not integration'"

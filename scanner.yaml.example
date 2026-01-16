@@ -1,0 +1,57 @@
+# Scanner Configuration
+
+scanner:
+  update_frequency_seconds: 5
+  
+  universe:
+    provider: csv
+    csv_path: data/universe.csv
+  
+  cache:
+    ttl_seconds: 5
+  
+  # Pillar configurations
+  price:
+    enabled: true
+    min: 2.0
+    max: 20.0
+    
+  momentum:
+    enabled: true
+    min_pct_move: 10.0
+    min_early_session_rvol: 5.0
+    time_window:
+      start: "09:30"
+      end: "11:00"
+      timezone: "America/New_York"
+    
+  volume:
+    enabled: true
+    min_relative_volume: 5.0
+    lookback_days: 30
+    
+  catalyst:
+    enabled: true
+    require_news: true
+    allowed_types: [earnings, fda, mna, contracts, guidance]
+    
+  float:
+    enabled: true
+    max_shares: 20000000
+
+providers:
+  market_data:
+    type: ibkr
+    host: ${IBKR_HOST}
+    port: ${IBKR_PORT}
+    client_id: ${IBKR_CLIENT_ID}
+    # market_data_type: 1=live (default), 2=frozen, 3=delayed, 4=delayed-frozen
+    market_data_type: 1
+  
+  news:
+    type: csv
+    csv_path: data/catalysts.csv
+  
+  fundamentals:
+    type: csv
+    csv_path: data/float_data.csv
